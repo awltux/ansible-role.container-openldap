@@ -1,0 +1,34 @@
+---
+
+- name: Create openldap user for volume mounts
+  user:
+    name: openldap
+    password_lock: yes
+    system: yes
+  register: openldap_user
+  
+- name: Create local storage folders for container volumes
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0600'
+    owner: openldap
+  loop:
+    - "{{ ldap_volume_data_dir }}"
+    - "{{ ldap_volume_config_dir }}"
+    
+- name: Start OpenLdap server
+  docker_container:
+    name: skillz_openldap
+    # https://github.com/awltux/docker-openldap
+    image: "osixia/openldap:{{ ldap_container_version }}"
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+      - "{{ ldap_volume_data_dir }}:/var/lib/ldap"
+      - "{{ ldap_volume_config_dir }}:/etc/ldap/slapd.d
+    env:
+      LDAP_DOMAIN: "{{ ldap_domain }}"
+      LDAP_ADMIN_PASSWORD: "{{ ldap_admin_password }}"
+      LDAP_OPENLDAP_GID: "{{ openldap_user.uid }}"
+      LDAP_OPENLDAP_UID: "{{ openldap_user.group }}"

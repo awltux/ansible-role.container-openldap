@@ -1,5 +1,9 @@
 ---
 
+# Stored in playbook vault/credentials.yml
+# ldap_admin_password: 
+
 ldap_container_version: '1.3.0'
+ldap_domain: skillz.awltux.trade
 ldap_volume_config_dir: /opt/skillz/openldap/config
 ldap_volume_data_dir: /opt/skillz/openldap/data
